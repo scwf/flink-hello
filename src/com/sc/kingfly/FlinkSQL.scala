@@ -1,4 +1,4 @@
-package com.huawei.kingfly
+package com.sc.kingfly
 
 import org.apache.flink.api.scala.ExecutionEnvironment
 import org.apache.flink.table.api.TableEnvironment
