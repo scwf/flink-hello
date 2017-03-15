@@ -1,0 +1,24 @@
+@startuml
+(*) --> "Parse"
+--> "Algebrize"
+--> "Expand views"
+--> "NNF convert"
+--> "Simplification"
+    note right
+        Constant folding
+        Domain simplification
+        Predicate push-down
+        Join simplification
+        Contradiction detection
+    end note
+--> "Auto stats/parameterize"
+--> "Derive cardinality"
+--> "Heuristic Join reordering"
+--> "Project normalization"
+--> "Trivial plan"
+--> "Exploration"
+--> "Copy out"
+--> "convert to executable tree"
+-->(*)
+
+@enduml

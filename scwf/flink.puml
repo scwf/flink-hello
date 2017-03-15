@@ -1,0 +1,26 @@
+@startuml
+interface FlinkRel
+interface RelNode
+abstract class SingleRel
+abstract class BiRel
+interface DataSetRel {
+translateToPlan(tableEnv: BatchTableEnvironment): DataSet[Row]
+}
+class DataSetJoin
+class DataSetAggregate
+class DataSetSort
+
+RelNode <|-- SingleRel
+RelNode <|-- BiRel
+RelNode <|-- DataSetRel
+FlinkRel <|-- DataSetRel
+DataSetRel <|-- DataSetJoin
+BiRel <|-- DataSetJoin
+DataSetRel <|-- DataSetAggregate
+SingleRel <|-- DataSetAggregate
+DataSetRel <|-- DataSetSort
+SingleRel <|-- DataSetSort
+
+@enduml
+
+table 转为dataset时，触发sql优化，显式调用
