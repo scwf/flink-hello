@@ -1,9 +1,19 @@
 @startuml
 
 interface RelNode
-abstract AbstractRelNode
+interface Converter {
+RelTraitSet getInputTraits()
+RelTraitDef getTraitDef()
+RelNode getInput()
+}
+abstract AbstractRelNode {
+RelTraitSet traitSet
+Convention getConvention()
+}
 
 RelNode <|-- AbstractRelNode
+RelNode <|-- Converter
+
 AbstractRelNode <|-- RelSubset
 RelSubset *-- RelSet
 VolcanoPlanner o-- RelSubset
@@ -27,6 +37,59 @@ RelNode rel
 void addInternal(RelNode rel)
 }
 
+
+AbstractRelNode <|-- SingleRel
+AbstractRelNode <|-- BiRel
+BiRel <|-- Join
+Join <|-- LogicalJoin
+Join <|-- PigJoin
+Join <|-- BindableJoin
+
+SingleRel <|-- Filter
+Filter <|-- LogicalFilter
+Filter <|-- CassandraFilter
+Filter <|-- BindableFilter
+Filter <|-- MongoFilter
+
+interface RelNode
+abstract class AbstractRelNode
+abstract class BiRel
+class Join
+class LogicalJoin {
+LogicalJoin create(...)
+}
+class PigJoin
+class BindableJoin
+
+abstract class SingleRel
+abstract class Filter
+class LogicalFilter {
+LogicalFilter create(RelNode input, RexNode condition)
+}
+class CassandraFilter
+class BindableFilter
+class MongoFilter
+
+RelTraitSet o-- RelTrait
+RelTrait <|-- Convention
+RelTrait <|-- RelCompositeTrait
+interface RelTrait {
+RelTraitDef getTraitDef()
+boolean satisfies(RelTrait trait)
+void register(RelOptPlanner planner)
+}
+interface Convention
+class RelTraitSet {
+RelTrait[] traits
+}
+abstract class RelTraitDef {
+RelNode convert(RelOptPlanner planner,RelNode rel,T toTrait,...)
+}
+
+@enduml
+
+@startuml
+
 class VolcanoPlanner {
   RelSubset root
   RelNode originalRoot
@@ -38,7 +101,26 @@ class VolcanoPlanner {
 
   boolean addRule(RelOptRule rule)
   void setRoot(RelNode rel)
+  void ensureRootConverters()
   RelNode findBestExp()
+}
+
+class RuleQueue {
+VolcanoRuleMatch popMatch(VolcanoPlannerPhase phase)
+Map<VolcanoPlannerPhase, PhaseMatchList> matchListMap
+}
+
+class PhaseMatchList {
+VolcanoPlannerPhase phase
+List<VolcanoRuleMatch> list
+Multimap<RelSubset, VolcanoRuleMatch> matchMap
+}
+
+enum VolcanoPlannerPhase {
+  PRE_PROCESS_MDR
+  PRE_PROCESS
+  OPTIMIZE
+  CLEANUP
 }
 
 Table <|-- ScannableTable
@@ -90,35 +172,6 @@ class JoinNode {
 }
 class FilterNode {
 }
-
-RelNode <|-- AbstractRelNode
-AbstractRelNode <|-- SingleRel
-AbstractRelNode <|-- BiRel
-BiRel <|-- Join
-Join <|-- LogicalJoin
-Join <|-- PigJoin
-Join <|-- BindableJoin
-
-SingleRel <|-- Filter
-Filter <|-- LogicalFilter
-Filter <|-- CassandraFilter
-Filter <|-- BindableFilter
-Filter <|-- MongoFilter
-
-interface RelNode
-abstract class AbstractRelNode
-abstract class BiRel
-class Join
-class LogicalJoin
-class PigJoin
-class BindableJoin
-
-abstract class SingleRel
-abstract class Filter
-class LogicalFilter
-class CassandraFilter
-class BindableFilter
-class MongoFilter
 
 @enduml
 

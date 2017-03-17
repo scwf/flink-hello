@@ -4,6 +4,7 @@ import org.apache.flink.api.scala.ExecutionEnvironment
 import org.apache.flink.table.api.TableEnvironment
 import org.apache.flink.api.scala._
 import org.apache.flink.table.api.scala._
+
 /**
   * Created by w00228970 on 2017/3/15.
   */
