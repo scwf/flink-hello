@@ -1,4 +1,4 @@
-package com.sc.kingfly
+package com.scwf
 
 import org.apache.flink.api.scala.ExecutionEnvironment
 import org.apache.flink.table.api.TableEnvironment
