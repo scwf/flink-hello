@@ -83,7 +83,7 @@
 
 
     <build>
-        <sourceDirectory>src/main/scala, src/main/java</sourceDirectory>
+        <sourceDirectory>src/main/scala</sourceDirectory>
     </build>
 
 </project>
