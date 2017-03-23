@@ -110,9 +110,11 @@ class VolcanoPlanner {
   RuleQueue ruleQueue
   List<RelTraitDef> traitDefs
 
-  boolean addRule(RelOptRule rule)
+  boolean addRule(RelOptRule rule) // 添加rule的入口
   void setRoot(RelNode rel)
   void ensureRootConverters()
+  RelSubset registerImpl(RelNode rel,RelSet set) // 会调用 fireRules
+  void fireRules(RelNode rel,boolean deferred) // ruleCall.match(rel)-volcanoRuleCall.matchRecurse-DeferringRuleCall.onMatch, 将match添加到ruleQueue
   RelNode findBestExp()
 }
 
@@ -139,7 +141,10 @@ PhaseMatchList o-- VolcanoRuleMatch
 RuleQueue o-- PhaseMatchList
 RuleQueue o-- VolcanoPlannerPhase
 VolcanoPlanner o-- RuleQueue
-
+RelOptRuleCall o-- RelOptRule
+RelOptRuleCall o-- RelOptRuleOperand
+RelOptRuleOperand o-- RelOptRule
+RelOptRule o-- RelOptRuleOperand
 
 abstract class RelOptRuleCall {
   final int id;
@@ -149,6 +154,23 @@ abstract class RelOptRuleCall {
   final RelNode[] rels;
   final RelOptPlanner planner;
   final List<RelNode> parents;
+}
+
+abstract class RelOptRule {
+RelOptRuleOperand operand
+
+public boolean matches(RelOptRuleCall call)
+}
+
+class RelOptRuleOperand {
+  RelOptRuleOperand parent
+  RelOptRule rule
+  Predicate<RelNode> predicate
+  RelTrait trait
+  Class<? extends RelNode> clazz
+  ImmutableList<RelOptRuleOperand> children // rule 可能对孩子也有要求
+
+  public boolean matches(RelNode rel) // 是否命中rule
 }
 
 class VolcanoRuleCall {
