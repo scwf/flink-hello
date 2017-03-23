@@ -1,11 +1,22 @@
 @startuml
 
-interface RelNode
+interface RelNode {
+List<RelNode> getInputs()
+Convention getConvention()
+RelDataType getRowType()
+RelDataType getExpectedInputRowType(int ordinalInParent)
+double estimateRowCount(RelMetadataQuery mq)
+RelOptCost computeSelfCost(RelOptPlanner, RelMetadataQuery)
+void register(RelOptPlanner planner)
+RelNode onRegister(RelOptPlanner planner)
+}
+
 interface Converter {
 RelTraitSet getInputTraits()
 RelTraitDef getTraitDef()
 RelNode getInput()
 }
+
 abstract AbstractRelNode {
 RelTraitSet traitSet
 Convention getConvention()
@@ -122,6 +133,40 @@ enum VolcanoPlannerPhase {
   OPTIMIZE
   CLEANUP
 }
+RelOptRuleCall <|-- VolcanoRuleCall
+VolcanoRuleCall <|-- VolcanoRuleMatch
+PhaseMatchList o-- VolcanoRuleMatch
+RuleQueue o-- PhaseMatchList
+RuleQueue o-- VolcanoPlannerPhase
+VolcanoPlanner o-- RuleQueue
+
+
+abstract class RelOptRuleCall {
+  final int id;
+  final RelOptRuleOperand operand0;
+  Map<RelNode, List<RelNode>> nodeInputs;
+  final RelOptRule rule;
+  final RelNode[] rels;
+  final RelOptPlanner planner;
+  final List<RelNode> parents;
+}
+
+class VolcanoRuleCall {
+  VolcanoPlanner volcanoPlanner
+}
+
+class VolcanoRuleMatch {
+  final RelSet targetSet
+  RelSubset targetSubset
+  String digest
+  double cachedImportance = Double.NaN
+}
+
+
+
+@enduml
+
+@startuml
 
 Table <|-- ScannableTable
 Table <|-- FilterableTable
@@ -172,8 +217,9 @@ class JoinNode {
 }
 class FilterNode {
 }
-
 @enduml
+
+
 
 class CBO {
   凡是不一定能提升性能的rule都应该划到cbo中去考虑
